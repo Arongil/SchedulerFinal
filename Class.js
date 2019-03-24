@@ -13,6 +13,14 @@ class Class {
         this.roster = [];
     }
 
+    getRoster() {
+        var roster = "";
+        for (var i = 0; i < this.roster.length; i++) {
+            roster += this.roster[i] + (i < this.roster.length - 1 ? ", " : "");
+        }
+        return roster;
+    }
+
 }
 
 var studentId = 0;

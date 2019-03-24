@@ -25,6 +25,30 @@ function peopleInBoth(varA, varB) {
     return people;
 }
 
+function personInClass(person, variable) {
+    for (var i = 0; i < person.classes.length; i++) {
+        if (person.classes[i].id == variable.id) {
+            return true;
+        }
+    }
+    return false;
+}
+function getRoster(variable) {
+    var roster = [];
+    teachers.forEach( (teacher) => { if (personInClass(teacher, variable)) { roster.push(teacher.name); } } );
+    students.forEach( (student) => { if (personInClass(student, variable)) { roster.push(student.name); } } );
+    return roster;
+}
+
+function displayRosters() {
+    var vars = csp.variables;
+    for (i = 0; i < vars.length; i++) {
+        // Display rosters by section.
+        document.getElementById("rosters").innerHTML += "<strong>" + vars[i].name + ":</strong><br><span style='margin-left: 5%; margin-right: 5%;'>" + vars[i].classInfo.getRoster() + "</span><br>";
+        for (; i < vars.length - 1 && vars[i + 1].classInfo.section == vars[i].classInfo.section; i++) {}
+    }
+}
+
 var csp;
 
 function initCSP() {
@@ -42,7 +66,8 @@ function initCSP() {
     var vars = [];
     for (var i = 0; i < variables.length; i++) {
         vars.push(new Variable(variables[i].name, variables[i].domain, variables[i].subject, variables[i].section, variables[i].duration, variables[i].capacity, variables[i].weight));
-        vars[i].id = parseInt(i);
+        vars[i].id = i;
+        vars[i].classInfo.roster = getRoster(vars[i]);
     }
 
     // Add Binary Constraints
