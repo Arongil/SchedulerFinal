@@ -99,7 +99,7 @@ function initCSP() {
     for (var i = 0; i < vars.length; i++) {
         constraints.push(new UnaryConstraint(vars[i].name + " Day Constraint", vars[i], dayConstraint, 1));
     }
-    constraints = getBothDirections(constraints);
+    // constraints = getBothDirections(constraints);
 
     csp = new CSP(vars, constraints);
     csp.initUnassociatedConstraints();

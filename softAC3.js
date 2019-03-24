@@ -1,7 +1,7 @@
 function softBinaryConsistency(csp, queue) {
     var arcs = queue;
     if (arcs.length === 0) {
-        arcs = csp.getBinaryConstraints();
+        arcs = getBothDirections(csp.getBinaryConstraints());
     }
     var removedArcs = []; // Store constraints not in arcs to prevent arcIsUnique calls.
 
