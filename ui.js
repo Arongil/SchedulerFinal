@@ -12,28 +12,16 @@ class Schedule {
         this.teachers = schedule.teachers;
         this.students = schedule.students;
         this.colorBySubject = { // R    G    B
-            "goal time":        [255, 255, 140],
-            "studio":           [137, 255, 245],
-            "math":             [216, 255, 127],
-            "science":          [183, 205, 255],
-            "history":          [255, 206, 109],
-            "english":          [175, 255, 189],
-            "computer science": [255, 195, 186],
-            "art":              [178, 255, 215],
-            "world language":   [255, 206, 248],
-            "outer wellness":   [220, 220, 220]
-        };
-        this.teacherBySubject = {
-            "goal time":        [undefined],
-            "studio":           ["John", "Tristen"],
-            "math":             ["Marcy"],
-            "science":          ["Megan", "Denise"],
-            "history":          ["Derek"],
-            "english":          ["Brett"],
-            "computer science": ["Denise"],
-            "art":              ["Saloni"],
-            "world language":   ["Raquel", "Sara", "Sabrina"],
-            "outer wellness":   ["Devin"]
+            "OPEN":             [255, 255, 140],
+            "STUDIO":           [137, 255, 245],
+            "MATH":             [216, 255, 127],
+            "SCIENCE":          [183, 205, 255],
+            "HISTORY":          [255, 206, 109],
+            "ENGLISH":          [175, 255, 189],
+            "COMPUTER-SCIENCE": [255, 195, 186],
+            "ART":              [178, 255, 215],
+            "WORLD-LANGUAGE":   [255, 206, 248],
+            "OUTER-WELLNESS":   [220, 220, 220]
         };
 
         this.canvas;
@@ -44,34 +32,21 @@ class Schedule {
     }
 
     getBlock(block) {
-        var times = ["9:15 - 10:00", "10:00 - 10:45", "11:00 - 11:45", "11:45 - 12:30", "1:15 - 2:00", "2:00 - 2:45", "2:45 - 3:45"];
-        return times[block];
+        if (this.blocks == 7) {
+            var times = ["9:15 - 10:00", "10:00 - 10:45", "11:00 - 11:45", "11:45 - 12:30", "1:15 - 2:00", "2:00 - 2:45", "2:45 - 3:45"];
+            return times[block];
+        }
+        return "Block " + (block + 1);
     }
 
     getDay(day) {
-        var days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
-        return days[day];
+        var days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+        return days[day % 7];
     }
 
-    getColor(classHolder) {
-        var teacher, i, j;
-        if (classHolder !== undefined) {
-            for (i = 0; i < this.teachers.length; i++) {
-                for (j = 0; j < this.teachers[i].classes.length; j++) {
-                    if (this.teachers[i].classes[j].id == classHolder.id) {
-                        teacher = this.teachers[i].name;
-                        break;
-                    }
-                }
-            }
-        }
-
-        var keys = Object.keys(this.teacherBySubject);
-        for (i = 0; i < keys.length; i++) {
-            if (this.teacherBySubject[keys[i]].indexOf(teacher) != -1)
-                return this.colorBySubject[keys[i]];
-        }
-        throw "Error: invalid classId in Schedule.getColor";
+    getColor(id) {
+        if (id == -1) { return this.colorBySubject["OPEN"]; }
+        return this.colorBySubject[this.classes[id].subject];
     }
 
     getPerson(name) {
@@ -91,15 +66,13 @@ class Schedule {
         // to continued or goal time, and the class id, which is constant.
         var slot = this.blocks*day + block + 1, classes = [], classHolder, i, j;
         for (i = 0; i < person.classes.length; i++) {
-            classHolder = person.classes[i];
-            if (slot == classHolder.value)
-                classes.push({"name": classHolder.name, "id": classHolder.id}); 
-            else if (slot > classHolder.value && slot < classHolder.value + classHolder.duration)
-                classes.push({"name": classHolder.name + " [cont]", "id": classHolder.id});
+            classHolder = this.classes[person.classes[i]];
+            if (slot >= classHolder.value && slot < classHolder.value + classHolder.duration)
+                classes.push({"name": classHolder.name, "id": person.classes[i]});
         }
         if (classes.length == 0) {
             // There are no scheduled classes in the slot, so return goal time.
-            return {"name": "Goal Time", "id": undefined, "conflicts": []};
+            return {"name": "OPEN", "id": -1, "conflicts": []};
         }
         else if (classes.length == 1) {
             // Return the one class in the slot.
@@ -114,16 +87,16 @@ class Schedule {
             for (i = 0; i < classes.length; i++) {
                 if (this.classes[classes[i].id].weight > highestWeight) {
                     if (highestWeighted !== undefined)
-                        conflicts.push(highestWeighted);
+                        conflicts.push(this.classes[highestWeighted]);
                     highestWeight = this.classes[classes[i].id].weight;
-                    highestWeighted = this.classes[classes[i].id];
+                    highestWeighted = classes[i].id;
                 }
                 else
                     conflicts.push(this.classes[classes[i].id]);
             }
             return {
-                "name": highestWeighted.name,
-                "id": highestWeighted.id,
+                "name": this.classes[highestWeighted].name,
+                "id": highestWeighted,
                 "conflicts": conflicts
             };
         }
@@ -132,11 +105,11 @@ class Schedule {
     displayClass(person, day, block) {
         // Get data of class in given day and block.
         var classData = this.getClass(person, day - 1, block - 1),
-            color = this.getColor(this.classes[classData.id]);
+            color = this.getColor(classData.id);
         // Draw background rectangle in the color of the class's subject.
-        var centerX = WIDTH*(-1/2 + (day + 1)/(this.blocks + 1)),
+        var centerX = WIDTH*(-1/2 + (day + 1)/(this.days + 3)),
             centerY = HEIGHT*(-1/3 + 5/6 * block/(this.blocks + 1)),
-            width = WIDTH/(this.blocks + 1),
+            width = WIDTH/(this.days + 3),
             height = 5/6 * HEIGHT/(this.blocks + 1);
         this.canvas.fill(color[0], color[1], color[2]);
         this.canvas.rect(centerX, centerY, width, height);
@@ -173,12 +146,12 @@ class Schedule {
                     continue;
                 else if (i == 0 && j != 0) {
                     this.canvas.textSize(HEIGHT / 40);
-                    this.canvas.text(this.getBlock(j - 1), WIDTH*(-1/2 + 0.8/(this.blocks + 1)),
+                    this.canvas.text(this.getBlock(j - 1), WIDTH*(-1/2 + 0.8/(this.days + 3)),
                         HEIGHT*(-1/3 + 5/6 * (j + 0.1)/(this.blocks + 1))); 
                 }
                 else if (j == 0 && i != 0) {
                     this.canvas.textSize(HEIGHT / 30);
-                    this.canvas.text(this.getDay(i - 1), WIDTH*(-1/2 + (i + 1)/(this.blocks + 1)),
+                    this.canvas.text(this.getDay(i - 1), WIDTH*(-1/2 + (i + 1)/(this.days + 3)),
                         HEIGHT*(-11/40 - 1/(6 * (this.blocks + 1))));
                 }
                 else {
@@ -199,28 +172,29 @@ class Schedule {
         // Display information.
         var fontSize = HEIGHT/40;
         this.canvas.fill(255, 255, 200);
-        this.canvas.rect(WIDTH*(1/2 - 0.8/(this.blocks + 1)), HEIGHT/12,
-            WIDTH/(this.blocks + 1), 2/3 * HEIGHT*(1 + 5/12/(this.blocks + 1)));
+        this.canvas.noStroke();
+        this.canvas.rect(WIDTH*(1/2 - 0.8/(this.days + 3)), HEIGHT/12,
+            WIDTH/(this.days + 3), 2/3 * HEIGHT*(1 + 5/12/(this.blocks + 1)));
         this.canvas.fill(0, 0, 0);
-        this.canvas.textWrap(info, WIDTH*(1/2 - 0.8/(this.blocks + 1)) + 1,
-            HEIGHT/12 - fontSize/2, 0.9 * WIDTH/(this.blocks + 1), fontSize);
+        this.canvas.textWrap(info, WIDTH*(1/2 - 0.8/(this.days + 3)) + 1,
+            HEIGHT/12 - fontSize/2, 0.9 * WIDTH/(this.days + 3), fontSize);
     }
 
     clearInfoPanel() {
         this.canvas.noStroke();
         this.canvas.fill(220, 220, 220);
-        this.canvas.rect(WIDTH*(1/2 - 0.8/(this.blocks + 1)), HEIGHT/12,
-            WIDTH/(this.blocks + 1) + 2, 2/3 * HEIGHT*(1 + 5/12/(this.blocks + 1)) + 2);
+        this.canvas.rect(WIDTH*(1/2 - 0.8/(this.days + 3)), HEIGHT/12,
+            1.1*WIDTH/(this.days + 3) + 2, 2/3 * HEIGHT*(1 + 5/12/(this.blocks + 1)) + 2);
     }
 
     checkMouse(canvas) {
         this.setCanvas(canvas);
         var person = this.getPerson(canvas.name), classData;
         var x, y, mouseX = canvas.inputs.mouseX, mouseY = canvas.inputs.mouseY,
-            width = WIDTH/(this.blocks + 1), height = 5/6 * HEIGHT/(this.blocks + 1);
+            width = WIDTH/(this.days + 3), height = 5/6 * HEIGHT/(this.blocks + 1), i, j;
         for (i = 1; i < this.days + 1; i++) {
             for (j = 1; j < this.blocks + 1; j++) {
-                x = WIDTH*(-1/2 + (i + 1)/(this.blocks + 1));
+                x = WIDTH*(-1/2 + (i + 1)/(this.days + 3));
                 y = HEIGHT*(-1/3 + 5/6 * j/(this.blocks + 1));
                 if (mouseX > x - width/2 && mouseX < x + width/2 &&
                     mouseY > y - height/2 && mouseY < y + height/2) {

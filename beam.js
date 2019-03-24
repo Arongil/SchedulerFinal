@@ -1,5 +1,5 @@
 function beamSearch(csp, beamWidth = 2, probabilityInfluence = 1) {
-    initCSP();
+    csp.reset();
     csp.softArcConsistency = true;
     if (csp.maintainArcConsistency) {
         unaryConsistency(csp);

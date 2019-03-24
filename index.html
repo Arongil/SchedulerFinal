@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html> 
     <head> 
-        <title>Scheduler</title> 
+        <title>Scheduler</title>
+
+        <link href="style.css" rel="stylesheet" type="text/css" />
     </head>
     <body>
         <div id="input" class="center">
-        <h1>Scheduler</h1>
+            <h1>Scheduler</h1>
             <h3>Step 1: Set Classes</h3>
-            <p>For each class, make a new line and use the formula, "classname: weight sections meetings duration capacity (optional-->) [domain separated by commas, no spaces, 1 through 35]"</p>
+            <p>For each class, make a new line and use the formula, "classname: subject weight sections meetings duration capacity (optional-->) [domain separated by commas, no spaces, 1 through 35; subject one of OPEN ELECTIVE MATH SCIENCE HISTORY ENGLISH COMPUTER-SCIENCE ART WORLD-LANGUAGE OUTER-WELLNESS]"</p>
             <textarea id="classes" rows=10 cols=100 placeholder=""></textarea><br>
-            <button id="read-classes" onclick="readClasses();">Read Classes</button>
+            <button id="read-classes" onclick="readClasses(true);">Read Classes</button>
             <p id="class-ids"></p>
             <h3>Step 2: Set Teachers</h3>
             <p>For each class, make a new line and use the formula, "firstname lastname weight [classes ids separated by commas, no spaces]"</p>
@@ -17,12 +19,17 @@
             <h3>Step 3: Set Students</h3>
             <p>For each teacher, make a new line and use the formula, "firstname lastname grade weight [classes ids separated by commas, no spaces]"</p>
             <textarea id="students" rows=10 cols=100 placeholder=""></textarea><br>
+            <h3>Step 4: Set Structure</h3>
+            Days Per Week: <input id="days" placeholder="5"></input> <br>
+            Blocks Per Day: <input id="blocks" placeholder="7"></input> <br>
             <br><br>
             <button id="compile" onclick="initCSP();">Compile Data</button>
             <br><br>
-            <button onclick="console.log(backtrackingSearch(csp));">Backtrack</button><br>
-            Beam Width: <input id="beam-width"></input>
-            <button onclick="assignment = beamSearch(csp, parseInt(document.getElementById('beam-width').value)); console.log(assignment);">Beam</button>
+            <button onclick="displayPerfect(backtrackingSearch(csp));">Find Perfect Solution</button>
+            <p id="perfect-solution"></p><br>
+            <button onclick="document.getElementById('duration').value = 1;">1 Second</button> <button onclick="document.getElementById('duration').value = 600;">10 Minutes</button> <button onclick="document.getElementById('duration').value = 3600;">1 Hour</button> <button onclick="document.getElementById('duration').value = 86400;">1 Day</button> <br>
+            Compute for <input id="duration"></input> seconds.
+            <button onclick="var best = solve(csp, parseInt(document.getElementById('duration').value)); setJSON(best); console.log(best);">Solve</button>
         </div>
 
         <div id="user-interface" class="center" style="padding: 1%; margin: 0px;"> 
@@ -56,6 +63,7 @@
         <script src="ui.js"></script>
         <script src="readInput.js"></script>
         <script src="test.js"></script>
+        <script src="solve.js"></script>
         <script src="main.js"></script>
     </body>
 </html>

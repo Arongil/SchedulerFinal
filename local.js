@@ -1,4 +1,5 @@
 function localSearch(csp, assignment, steps = 100) {
+    csp.reset();
     // if (this.constraintsByVariable.length == 0)
         // this.computeVariableConstraints();
     var conflictingVariables = csp.getConflicting(assignment);

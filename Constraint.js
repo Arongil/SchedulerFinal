@@ -85,16 +85,28 @@ function differentConstraint(varA, varB) {
            (varB.value <= varA.value && varB.value + varB.duration > varA.value);
 }
 
-var days = 5, blocks = 7;
+var days = 5, blocks = 7, totalBlocks = days*blocks;
 var breaks = [];
-for (var i = 0; i < days; i++) {
-    breaks.push(blocks*i + 2);
-    breaks.push(blocks*i + 4);
-    breaks.push(blocks*i + 7);
+function setBreaks() {
+    for (var i = 0; i < days; i++) {
+        breaks.push(blocks*i + 2);
+        breaks.push(blocks*i + 4);
+        breaks.push(blocks*i + blocks);
+    }
 }
+setBreaks();
 function dayConstraint(varA) {
     for (var i = 0; i < breaks.length; i++) {
         if (varA.value <= breaks[i] && varA.value + varA.duration > breaks[i] + 1) {
+            return true;
+        }
+    }
+    return false;
+}
+function differentDayConstraint(varA, varB) {
+    for (var i = 0, next; i < totalBlocks; i = next) {
+        next = i + blocks;
+        if (varA.value >= i && varA.value < next && varB.value >= i && varB.value < next) {
             return true;
         }
     }

@@ -26,3 +26,13 @@ function backtrack(assignment, csp) {
     }
     return undefined;
 }
+
+function displayPerfect(assignment) {
+    if (assignment === undefined) {
+        document.getElementById("perfect-solution").innerHTML = "There is no perfect solution.";
+    }
+    else {
+        document.getElementById("perfect-solution").innerHTML = "Perfect solution found!";
+        setJSON(assignment);
+    }
+}

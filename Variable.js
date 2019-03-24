@@ -2,7 +2,7 @@ var variableId = 0;
 
 class Variable {
 
-    constructor(name, domain, duration = 1, capacity = 15, weight = 1) {
+    constructor(name, domain, subject = "OPEN", section = 0, duration = 1, capacity = 15, weight = 1) {
         this.name = name;
         this.id = variableId++;
         this.domain = domain;
@@ -11,7 +11,7 @@ class Variable {
         this.unaryConstraints = [];
         this.binaryConstraints = [];
 
-        this.classInfo = new Class(this.name, duration, capacity, weight);
+        this.classInfo = new Class(this.name, subject, section, duration, capacity, weight);
 
         this.assigned = false;
     }

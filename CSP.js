@@ -13,6 +13,10 @@ class CSP {
         this.unassociatedConstraints = {};
     }
 
+    reset() {
+        this.variables.forEach( (v) => v.domain = v.unaryDomain.slice() );
+    }
+
     getBinaryConstraints() {
         return this.constraints.filter(
             (constraint) => constraint.getType() === "binary"
@@ -243,4 +247,77 @@ function getBest(csp, assignments) {
         }
     }
     return assignments[index];
+}
+
+function getRandomAssignment(csp) {
+    var assignment = {}, domain;
+    for (var i = 0; i < csp.variables.length; i++) {
+        domain = csp.variables[i].unaryDomain;
+        assignment[i] = domain[ Math.floor( Math.random() * domain.length ) ];
+    }
+    return assignment;
+}
+
+
+
+function getCleanClass(variable) {
+    return {
+        "name": variable.name,
+        "subject": variable.classInfo.subject,
+        "id": variable.id,
+        "value": variable.value,
+        "duration": variable.classInfo.duration,
+        "section": variable.classInfo.section,
+        "weight": variable.classInfo.weight
+    };
+}
+
+function getCleanClasses(schedule, classes) {
+    var cleanClasses = [], i;
+    for (i = 0; i < classes.length; i++) {
+        cleanClasses.push(getCleanClass(classes[i])); 
+    }
+    return cleanClasses;
+}
+
+function getCleanJSON(schedule) {
+    // Create clean JSON
+    var cleanJSON = {
+        "days": days,
+        "blocks": blocks,
+        "classes": [],
+        "teachers": [],
+        "students": []
+    }, variable;
+    cleanJSON.classes = getCleanClasses(schedule, schedule.variables);
+    for (i = 0; i < teachers.length; i++) {
+        cleanJSON.teachers.push({
+            "name": teachers[i].name,
+            "classes": teachers[i].classes.map( (c) => c.id ) // getCleanClasses(schedule, teachers[i].classes)
+        });
+    }
+    for (i = 0; i < students.length; i++) {
+        cleanJSON.students.push({
+            "name": students[i].name,
+            "grade": students[i].grade,
+            "classes": students[i].classes.map( (c) => c.id ) // getCleanClasses(schedule, students[i].classes)
+        });
+    }
+    return JSON.stringify(cleanJSON);
+}
+
+function getJSON(assignment) {
+    csp.applyAssignment(assignment);
+    return getCleanJSON(csp);
+}
+
+function setJSON(assignment) {
+    var json = getJSON(assignment);
+    document.getElementById("schedule-json").value = json;
+}
+
+function getAssignmentFromJSON(parsedJson) {
+    var assignment = {}, vars = parsedJson.classes;
+    vars.forEach( (variable) => assignment[variable.id] = variable.value );
+    return assignment;
 }

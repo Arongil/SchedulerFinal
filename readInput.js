@@ -12,6 +12,7 @@ function getExpandedSectionsAndMeetings(variables) {
             for (k = 0; k < variable.meetings; k++) {
                 expandedVariables[i][j].push({
                     "name": variable["name"] + " " + (j + 1) + " (" + (k + 1) + ")",
+                    "subject": variable["subject"],
                     "id": IdCount, 
                     "weight": variable["weight"],
                     "section": sectionCount,
@@ -23,8 +24,8 @@ function getExpandedSectionsAndMeetings(variables) {
                 });
                 IdCount++;
             }
+            sectionCount++;
         }
-        sectionCount++;
     }
     return expandedVariables;
 }
@@ -46,7 +47,7 @@ function getExpandedVariables(variables) {
 }
 
 var variables = [], teachers = [], students = [];
-function readClasses() {
+function readClasses(writeClasses = false) {
     variables = [];
 
     // TEXT OUTPUT
@@ -73,15 +74,18 @@ function readClasses() {
         }
         variables.push({
             "name": line[0],
-            "weight": parseFloat(info[0]),
-            "sections": parseInt(info[1]),
-            "meetings": parseInt(info[2]),
-            "duration": parseInt(info[3]),
-            "capacity": parseInt(info[4]),
-            "domain": info.length == 6 ? list : fullDomain
+            "subject": info[0],
+            "weight": parseFloat(info[1]),
+            "sections": parseInt(info[2]),
+            "meetings": parseInt(info[3]),
+            "duration": parseInt(info[4]),
+            "capacity": parseInt(info[5]),
+            "domain": info.length == 7 ? list : fullDomain
         });
         // TEXT OUTPUT
-        document.getElementById("class-ids").innerHTML += varLine + ": " + line[0] + "<br>";
+        if (writeClasses) {
+            document.getElementById("class-ids").innerHTML += varLine + ": " + line[0] + "<br>";
+        }
         // END TEXT OUTPUT
     }
 
@@ -124,6 +128,7 @@ function readStudentsAndTeachers() {
     }
 
     variables = getExpandedVariables(variables);
+    arrayedVariables = getArrayedVariables(variables);
 
     teachers.forEach( (teacher, index) => teacher["id"] = index );
     students.forEach( (student, index) => student["id"] = index );
@@ -147,7 +152,7 @@ function readStudentsAndTeachers() {
                     section[k].members.push(i);
                 }
             }
-            persons[i].classes = classes;
+            persons[i].classes = classes.map( (current) => arrayedVariables[current.id] );
         }
     }
 
@@ -163,6 +168,12 @@ function readStudentsAndTeachers() {
     });
     calibrateClasses(students, variables);
 
-    var sectionedVariables = variables;
-    variables = getArrayedVariables(variables);
+    variables = arrayedVariables;
+}
+
+function readStructure() {
+    days = parseInt(document.getElementById("days").value);
+    blocks = parseInt(document.getElementById("blocks").value);
+    totalBlocks = days*blocks;
+    setBreaks();
 }

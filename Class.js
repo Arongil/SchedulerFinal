@@ -2,8 +2,10 @@ var classId = 0;
 
 class Class {
 
-    constructor(name, duration, capacity, weight) {
+    constructor(name, subject, section, duration, capacity, weight) {
         this.name = name;
+        this.subject = subject;
+        this.section = section;
         this.id = classId++;
         this.duration = duration;
         this.capacity = capacity;
